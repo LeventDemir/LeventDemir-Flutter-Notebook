@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notebook/database/db.dart';
+import 'package:notebook/models/note.dart';
 
 class UpdateNote extends StatefulWidget {
   @override
@@ -10,12 +12,31 @@ class _UpdateNoteState extends State<UpdateNote> {
   final _titleEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
   String dropdownValue = 'Low';
+  DbHelper dbHelper = new DbHelper();
+  Note note;
 
-  void create() {
+  @override
+  void initState() {
+    super.initState();
+
+    note = ModalRoute.of(context).settings.arguments;
+
+    _titleEditingController.text = note.title;
+    _descriptionEditingController.text = note.description;
+  }
+
+  void update() {
     if (_formKey.currentState.validate()) {
-      debugPrint(_titleEditingController.text);
-      debugPrint(_descriptionEditingController.text);
-      debugPrint(dropdownValue);
+      Note x = new Note.withId(
+        note.id,
+        _titleEditingController.text,
+        _descriptionEditingController.text,
+        note.date,
+      );
+
+      dbHelper.update(x);
+
+      Navigator.pop(context);
     }
   }
 
@@ -71,10 +92,10 @@ class _UpdateNoteState extends State<UpdateNote> {
               ),
               SizedBox(height: 40),
               RaisedButton(
-                child: Text("Create", style: TextStyle(fontSize: 17)),
+                child: Text("Update", style: TextStyle(fontSize: 17)),
                 color: Colors.indigo,
                 textColor: Colors.white,
-                onPressed: create,
+                onPressed: update,
               ),
             ],
           ),

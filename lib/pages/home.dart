@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:notebook/database/db.dart';
+import 'package:notebook/models/note.dart';
+import 'package:timeago/timeago.dart' as timeago;
+import 'package:fluttertoast/fluttertoast.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -6,24 +10,61 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  List<String> notes = <String>['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+  List<Note> notes = new List<Note>();
+  DbHelper dbHelper = new DbHelper();
+
+  @override
+  void initState() {
+    super.initState();
+    getNotes();
+  }
+
+  void getNotes() {
+    var db = dbHelper.initalizeDb();
+    db.then((result) {
+      var noteFuture = dbHelper.getNotes();
+      noteFuture.then((data) {
+        List<Note> _notes = new List<Note>();
+        for (int i = 0; i < data.length; i++) {
+          _notes.add(Note.formObject(data[i]));
+        }
+
+        setState(() => notes = _notes);
+      });
+    });
+  }
+
+  void remove(int id, context) {
+    dbHelper.remove(id);
+
+    setState(() => notes);
+
+    Fluttertoast.showToast(msg: 'Note deleted');
+  }
 
   @override
   Widget build(BuildContext context) {
+    getNotes();
     return Scaffold(
       appBar: AppBar(title: Text('Notebook'), centerTitle: true),
       body: ListView.builder(
-        padding: const EdgeInsets.all(8),
+        padding: EdgeInsets.all(8),
         itemCount: notes.length,
         itemBuilder: (BuildContext context, int index) {
           return Dismissible(
-            key: Key(notes[index]),
+            key: Key(notes[index].title + index.toString()),
             onDismissed: (direction) {
-              setState(() => notes.removeAt(index));
-
               if (direction == DismissDirection.endToStart) {
-                Navigator.pushNamed(context, '/update-note');
+                Navigator.pushNamed(
+                  context,
+                  '/update-note',
+                  arguments: notes[index],
+                );
+              } else {
+                remove(notes[index].id, context);
               }
+
+              setState(() => notes.removeAt(index));
             },
             background: Card(
               color: Colors.red,
@@ -38,13 +79,15 @@ class _HomeState extends State<Home> {
             child: Card(
               elevation: 4,
               child: ListTile(
-                title: Text('note title ${notes[index]}'),
+                title: Text(notes[index].title),
                 trailing: Text(
-                  '01.10.2020 - 12.00',
-                  style: TextStyle(fontSize: 11, color: Colors.grey),
+                  timeago.format(DateTime.parse(notes[index].date)),
+                  style: TextStyle(color: Colors.grey),
                 ),
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
               ),
             ),
           );

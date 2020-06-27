@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notebook/database/db.dart';
+import 'package:notebook/models/note.dart';
 
 class CreateNote extends StatefulWidget {
   @override
@@ -13,9 +15,17 @@ class _CreateNoteState extends State<CreateNote> {
 
   void create() {
     if (_formKey.currentState.validate()) {
-      debugPrint(_titleEditingController.text);
-      debugPrint(_descriptionEditingController.text);
-      debugPrint(dropdownValue);
+      DbHelper dbHelper = new DbHelper();
+
+      Note note = new Note(
+        _titleEditingController.text,
+        _descriptionEditingController.text,
+        DateTime.now().toIso8601String(),
+      );
+
+      dbHelper.save(note);
+
+      Navigator.pop(context);
     }
   }
 
