@@ -20,8 +20,34 @@ class _UpdateNoteState extends State<UpdateNote> {
   String _image;
   Note note;
 
-  Future getImage() async {
-    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+  Future<void> _showPhotoSources() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                FlatButton(
+                  child: Text('Camera'),
+                  onPressed: () => getImage(ImageSource.camera),
+                ),
+                FlatButton(
+                  child: Text('Gallery'),
+                  onPressed: () => getImage(ImageSource.gallery),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future getImage(source) async {
+    Navigator.pop(context);
+
+    PickedFile pickedFile = await picker.getImage(source: source);
 
     setState(() => _image = pickedFile.path);
   }
@@ -96,15 +122,16 @@ class _UpdateNoteState extends State<UpdateNote> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 20),
               OutlineButton(
                 textColor: Colors.amber,
                 highlightedBorderColor: Colors.amber,
                 padding: EdgeInsets.symmetric(vertical: 8),
                 borderSide: BorderSide(width: 2, color: Colors.amber),
                 child: Icon(Icons.camera_alt),
-                onPressed: getImage,
+                onPressed: _showPhotoSources,
               ),
+              SizedBox(height: 5),
               _image == null
                   ? SizedBox(height: 0)
                   : Row(
