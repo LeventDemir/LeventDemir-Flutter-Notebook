@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:notebook/database/db.dart';
 import 'package:notebook/models/note.dart';
@@ -54,7 +55,6 @@ class _HomeState extends State<Home> {
           return Dismissible(
             key: Key(notes[index].title + index.toString()),
             onDismissed: (direction) {
-              print(notes[index].toMap());
               if (direction == DismissDirection.endToStart) {
                 Navigator.pushNamed(
                   context,
@@ -81,6 +81,11 @@ class _HomeState extends State<Home> {
               elevation: 4,
               child: ListTile(
                 title: Text(notes[index].title),
+                leading: notes[index].photo == null
+                    ? null
+                    : CircleAvatar(
+                        backgroundImage: FileImage(File(notes[index].photo)),
+                      ),
                 trailing: Text(
                   timeago.format(DateTime.parse(notes[index].date)),
                   style: TextStyle(color: Colors.grey),

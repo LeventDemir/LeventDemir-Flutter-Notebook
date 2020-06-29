@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:notebook/database/db.dart';
 import 'package:notebook/models/note.dart';
 import 'package:image_picker/image_picker.dart';
@@ -48,6 +49,8 @@ class _CreateNoteState extends State<CreateNote> {
       dbHelper.save(note);
 
       Navigator.pop(context);
+
+      Fluttertoast.showToast(msg: 'Note created');
     }
   }
 
@@ -86,6 +89,7 @@ class _CreateNoteState extends State<CreateNote> {
               ),
               SizedBox(height: 30),
               OutlineButton(
+                highlightedBorderColor: Colors.amber,
                 textColor: Colors.amber,
                 padding: EdgeInsets.symmetric(vertical: 8),
                 borderSide: BorderSide(width: 2, color: Colors.amber),
@@ -94,12 +98,24 @@ class _CreateNoteState extends State<CreateNote> {
               ),
               _image == null
                   ? SizedBox(height: 0)
-                  : GestureDetector(
-                      child: Text(
-                        'open image',
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                      onTap: _showPhoto,
+                  : Row(
+                      children: [
+                        GestureDetector(
+                          child: Text(
+                            'open image',
+                            style: TextStyle(color: Colors.greenAccent),
+                          ),
+                          onTap: _showPhoto,
+                        ),
+                        Spacer(),
+                        GestureDetector(
+                          child: Text(
+                            'remove image',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
+                          onTap: () => setState(() => _image = null),
+                        ),
+                      ],
                     ),
               SizedBox(height: 40),
               RaisedButton(
