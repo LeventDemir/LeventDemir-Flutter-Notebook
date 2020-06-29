@@ -54,6 +54,7 @@ class _HomeState extends State<Home> {
           return Dismissible(
             key: Key(notes[index].title + index.toString()),
             onDismissed: (direction) {
+              print(notes[index].toMap());
               if (direction == DismissDirection.endToStart) {
                 Navigator.pushNamed(
                   context,

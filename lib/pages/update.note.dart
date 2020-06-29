@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:notebook/database/db.dart';
 import 'package:notebook/models/note.dart';
 
@@ -14,15 +16,25 @@ class _UpdateNoteState extends State<UpdateNote> {
   String dropdownValue = 'Low';
   DbHelper dbHelper = new DbHelper();
   Note note;
+  String _image;
+  final picker = ImagePicker();
 
-  @override
-  void initState() {
-    super.initState();
+  Future getImage() async {
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
 
-    note = ModalRoute.of(context).settings.arguments;
+    setState(() => _image = pickedFile.path);
+  }
 
-    _titleEditingController.text = note.title;
-    _descriptionEditingController.text = note.description;
+  Future<void> _showPhoto() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: SingleChildScrollView(child: Image.file(File(_image))),
+        );
+      },
+    );
   }
 
   void update() {
@@ -31,6 +43,7 @@ class _UpdateNoteState extends State<UpdateNote> {
         note.id,
         _titleEditingController.text,
         _descriptionEditingController.text,
+        _image,
         note.date,
       );
 
@@ -42,6 +55,13 @@ class _UpdateNoteState extends State<UpdateNote> {
 
   @override
   Widget build(BuildContext context) {
+    if (_formKey.currentState == null) {
+      note = ModalRoute.of(context).settings.arguments;
+
+      _titleEditingController.text = note.title;
+      _descriptionEditingController.text = note.description;
+      _image = note.photo;
+    }
     return Scaffold(
       appBar: AppBar(title: Text('Notebook'), centerTitle: true),
       body: SingleChildScrollView(
@@ -74,22 +94,34 @@ class _UpdateNoteState extends State<UpdateNote> {
                 ),
               ),
               SizedBox(height: 30),
-              DropdownButton<String>(
-                value: dropdownValue,
-                icon: Icon(Icons.keyboard_arrow_down),
-                onChanged: (String newValue) {
-                  setState(() => dropdownValue = newValue);
-                },
-                items: <String>['High', 'Medium', 'Low']
-                    .map<DropdownMenuItem<String>>(
-                  (String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  },
-                ).toList(),
+              OutlineButton(
+                textColor: Colors.amber,
+                padding: EdgeInsets.symmetric(vertical: 8),
+                borderSide: BorderSide(width: 2, color: Colors.amber),
+                child: Icon(Icons.camera_alt),
+                onPressed: getImage,
               ),
+              _image == null
+                  ? SizedBox(height: 0)
+                  : Row(
+                      children: [
+                        GestureDetector(
+                          child: Text(
+                            'open image',
+                            style: TextStyle(color: Colors.greenAccent),
+                          ),
+                          onTap: _showPhoto,
+                        ),
+                        Spacer(),
+                        GestureDetector(
+                          child: Text(
+                            'remove image',
+                            style: TextStyle(color: Colors.redAccent),
+                          ),
+                          onTap: () => setState(() => _image = null),
+                        ),
+                      ],
+                    ),
               SizedBox(height: 40),
               RaisedButton(
                 child: Text("Update", style: TextStyle(fontSize: 17)),

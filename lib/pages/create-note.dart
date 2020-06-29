@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:notebook/database/db.dart';
 import 'package:notebook/models/note.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateNote extends StatefulWidget {
   @override
@@ -11,7 +13,26 @@ class _CreateNoteState extends State<CreateNote> {
   final _formKey = GlobalKey<FormState>();
   final _titleEditingController = TextEditingController();
   final _descriptionEditingController = TextEditingController();
-  String dropdownValue = 'Low';
+  final picker = ImagePicker();
+  String _image;
+
+  Future getImage() async {
+    PickedFile pickedFile = await picker.getImage(source: ImageSource.camera);
+
+    setState(() => _image = pickedFile.path);
+  }
+
+  Future<void> _showPhoto() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: SingleChildScrollView(child: Image.file(File(_image))),
+        );
+      },
+    );
+  }
 
   void create() {
     if (_formKey.currentState.validate()) {
@@ -20,6 +41,7 @@ class _CreateNoteState extends State<CreateNote> {
       Note note = new Note(
         _titleEditingController.text,
         _descriptionEditingController.text,
+        _image,
         DateTime.now().toIso8601String(),
       );
 
@@ -63,22 +85,22 @@ class _CreateNoteState extends State<CreateNote> {
                 ),
               ),
               SizedBox(height: 30),
-              DropdownButton<String>(
-                value: dropdownValue,
-                icon: Icon(Icons.keyboard_arrow_down),
-                onChanged: (String newValue) {
-                  setState(() => dropdownValue = newValue);
-                },
-                items: <String>['High', 'Medium', 'Low']
-                    .map<DropdownMenuItem<String>>(
-                  (String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  },
-                ).toList(),
+              OutlineButton(
+                textColor: Colors.amber,
+                padding: EdgeInsets.symmetric(vertical: 8),
+                borderSide: BorderSide(width: 2, color: Colors.amber),
+                child: Icon(Icons.camera_alt),
+                onPressed: getImage,
               ),
+              _image == null
+                  ? SizedBox(height: 0)
+                  : GestureDetector(
+                      child: Text(
+                        'open image',
+                        style: TextStyle(color: Colors.redAccent),
+                      ),
+                      onTap: _showPhoto,
+                    ),
               SizedBox(height: 40),
               RaisedButton(
                 child: Text("Create", style: TextStyle(fontSize: 17)),

@@ -9,6 +9,7 @@ class DbHelper {
   String colId = "id";
   String columnTitle = "title";
   String columnDescription = "description";
+  String columnPhoto = "photo";
   String columnDate = "date";
 
   static final DbHelper _dbHelper = DbHelper._internal();
@@ -40,7 +41,7 @@ class DbHelper {
 
   void _createDb(Database db, int version) async {
     await db.execute(
-      "Create Table $tableName($colId integer primary key, $columnTitle text, $columnDescription text, $columnDate text)",
+      "Create Table $tableName($colId integer primary key, $columnTitle text, $columnDescription text, $columnPhoto text, $columnDate text)",
     );
   }
 
