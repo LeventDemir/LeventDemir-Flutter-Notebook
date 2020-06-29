@@ -55,7 +55,7 @@ class _HomeState extends State<Home> {
           return Dismissible(
             key: Key(notes[index].title + index.toString()),
             onDismissed: (direction) {
-              if (direction == DismissDirection.endToStart) {
+              if (direction == DismissDirection.startToEnd) {
                 Navigator.pushNamed(
                   context,
                   '/update-note',
@@ -68,13 +68,17 @@ class _HomeState extends State<Home> {
               setState(() => notes.removeAt(index));
             },
             background: Card(
-              color: Colors.red,
-              child: ListTile(leading: Icon(Icons.delete, color: Colors.white)),
+              color: Colors.green,
+              child: ListTile(leading: Icon(Icons.edit, color: Colors.white)),
               elevation: 3.0,
             ),
             secondaryBackground: Card(
-              color: Colors.green,
-              child: ListTile(trailing: Icon(Icons.edit, color: Colors.white)),
+              color: Colors.red,
+              child: ListTile(
+                  trailing: Icon(
+                Icons.delete,
+                color: Colors.white,
+              )),
               elevation: 3.0,
             ),
             child: Card(
