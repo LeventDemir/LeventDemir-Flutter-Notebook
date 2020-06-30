@@ -10,6 +10,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Notebook',
       theme: ThemeData(primarySwatch: Colors.indigo),
       initialRoute: '/',
       routes: {
